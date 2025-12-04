@@ -569,6 +569,13 @@ class TrainConfig:
     # If true, will enable mlflow logging.
     mlflow_enabled: bool = False
 
+    # MLflow tracking server URI (e.g., "http://mlflow-server:5000").
+    # If None, uses local mlruns directory.
+    mlflow_tracking_uri: str | None = None
+
+    # MLflow experiment name. If None, uses project_name.
+    mlflow_experiment_name: str | None = None
+
     # Used to pass metadata to the policy server.
     policy_metadata: dict[str, Any] | None = None
 
