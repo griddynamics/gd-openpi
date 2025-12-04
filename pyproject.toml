@@ -20,6 +20,7 @@ dependencies = [
     "jax[cuda12]==0.5.3",
     "jaxtyping==0.2.36",
     "lerobot",
+    "datasets==3.5.1",
     "ml_collections==1.0.0",
     "mlflow>=3.6.0",
     "numpy>=1.22.4,<2.0.0",
