@@ -110,9 +110,15 @@ class Pi0(_model.BaseModel):
         ar_mask = []
         tokens = []
         # embed images
-        for name in obs.images:
-            image_tokens, _ = self.PaliGemma.img(obs.images[name], train=False)
+        image_names = list(obs.images.keys())
+        stacked_images = jnp.stack(list(obs.images.values()), axis=1)
+        batch_size, num_cams = stacked_images.shape[:2]
+        reshaped_images = stacked_images.reshape(-1, *stacked_images.shape[2:])
+        all_image_tokens, _ = self.PaliGemma.img(reshaped_images, train=False)
+        all_image_tokens = all_image_tokens.reshape(batch_size, num_cams, all_image_tokens.shape[1], -1)
 
+        for i, name in enumerate(image_names):
+            image_tokens = all_image_tokens[:, i]
             tokens.append(image_tokens)
             input_mask.append(
                 einops.repeat(
