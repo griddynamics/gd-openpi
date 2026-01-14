@@ -186,11 +186,18 @@ def save_checkpoint(model, optimizer, global_step, config, is_main, data_config)
         # Save policy metadata for inference
         policy_metadata = {
             "config_name": config.name,
-            "action_dim": config.model.action_dim,
-            "action_horizon": config.model.action_horizon,
-            "state_dim": config.model.action_dim,
-            "cameras": config.data.camera_config,
-            "custom_metadata": config.policy_metadata,
+            "robot_type": config.data.robot_type,
+            "robot": {
+                "action_dim": config.data.robot_action_dim,
+            },
+            "model": {
+                "action_dim": config.model.action_dim,
+                "action_horizon": config.model.action_horizon,
+            },
+            "training": {
+                "steps": global_step,
+                "dataset": config.data.repo_id,
+            },
         }
         (tmp_ckpt_dir / "policy_metadata.json").write_text(json.dumps(policy_metadata, indent=2))
 

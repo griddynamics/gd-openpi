@@ -200,9 +200,14 @@ class DataConfigFactory(abc.ABC):
         return None
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        """Camera configuration for this robot. Override in subclasses."""
-        return {}
+    def robot_type(self) -> str:
+        """Robot type identifier. Override in subclasses."""
+        return "unknown"
+
+    @property
+    def robot_action_dim(self) -> int:
+        """Actual robot action dimension. Override in subclasses."""
+        return 0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -238,12 +243,12 @@ class MyArmDataConfig(DataConfigFactory):
     """
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        return {
-            "base_0_rgb": {"observation_key": "observation/image", "required": True},
-            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image", "required": True},
-            "right_wrist_0_rgb": {"observation_key": None, "required": False},
-        }
+    def robot_type(self) -> str:
+        return "myarm"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 7
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -301,13 +306,12 @@ class LeRobotAlohaDataConfig(DataConfigFactory):
     adapt_to_pi: bool = True
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        return {
-            "base_0_rgb": {"observation_key": "observation/images/cam_high", "required": True},
-            "base_1_rgb": {"observation_key": "observation/images/cam_low", "required": True},
-            "left_wrist_0_rgb": {"observation_key": "observation/images/cam_left_wrist", "required": True},
-            "right_wrist_0_rgb": {"observation_key": "observation/images/cam_right_wrist", "required": True},
-        }
+    def robot_type(self) -> str:
+        return "aloha"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 14
 
     # Repack transforms.
     repack_transforms: tyro.conf.Suppress[_transforms.Group] = dataclasses.field(
@@ -361,12 +365,12 @@ class LeRobotLiberoDataConfig(DataConfigFactory):
     extra_delta_transform: bool = False
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        return {
-            "base_0_rgb": {"observation_key": "observation/image", "required": True},
-            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image", "required": True},
-            "right_wrist_0_rgb": {"observation_key": None, "required": False},
-        }
+    def robot_type(self) -> str:
+        return "libero"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 7
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -451,12 +455,12 @@ class RLDSDroidDataConfig(DataConfigFactory):
     filter_dict_path: str | None = "gs://openpi-assets/droid/droid_sample_ranges_v1_0_1.json"
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        return {
-            "base_0_rgb": {"observation_key": "observation/exterior_image_1_left", "required": True},
-            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image_left", "required": True},
-            "right_wrist_0_rgb": {"observation_key": None, "required": False},
-        }
+    def robot_type(self) -> str:
+        return "droid"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 8
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -511,13 +515,12 @@ class LeRobotDROIDDataConfig(DataConfigFactory):
     """
 
     @property
-    def camera_config(self) -> dict[str, dict[str, Any]]:
-        return {
-            "base_0_rgb": {"observation_key": "observation/exterior_image_1_left", "required": True},
-            "base_1_rgb": {"observation_key": "observation/exterior_image_2_left", "required": True},
-            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image_left", "required": True},
-            "right_wrist_0_rgb": {"observation_key": None, "required": False},
-        }
+    def robot_type(self) -> str:
+        return "droid"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 8
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
