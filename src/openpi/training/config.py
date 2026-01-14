@@ -244,7 +244,7 @@ class MyArmDataConfig(DataConfigFactory):
 
     @property
     def robot_type(self) -> str:
-        return "myarm"
+        return "my_arm"
 
     @property
     def robot_action_dim(self) -> int:
