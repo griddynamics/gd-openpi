@@ -41,7 +41,7 @@ def upload_checkpoint_to_s3(local_dir: str, s3_uri: str):
 
     Args:
         local_dir: str, Local path, e.g. "/tmp/checkpoints/pi0_pikki/exp_1"
-        s3_uri: str, S3 URI, e.g. "s3://robotic-platform-vla/checkpoints/pi0_pikki/exp_1"
+        s3_uri: str, S3 URI, e.g. "s3://robotic-platform-storage/checkpoints/pi0_pikki/exp_1"
     """
     if not s3_uri.startswith("s3://"):
         raise ValueError("Expected S3 URI to start with 's3://'")
@@ -406,7 +406,7 @@ def main(config: _config.TrainConfig):
                 if run_on_aws:
                     checkpoint_manager.wait_until_finished()
                     model_id = os.environ.get("MODEL_ID", "model_id")
-                    s3_path = f"s3://robotic-platform-vla/dev/models/{model_id}/{config.name}/{config.exp_name}/{step}"
+                    s3_path = f"s3://robotic-platform-storage/dev/models/{model_id}/{config.name}/{config.exp_name}/{step}"
                     upload_checkpoint_to_s3(
                         local_dir=str(latest_step_dir),
                         s3_uri=s3_path,
