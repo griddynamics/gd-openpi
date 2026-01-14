@@ -399,7 +399,7 @@ def main(config: _config.TrainConfig):
                 infos = []
             batch = next(data_iter)
             if (step % config.save_interval == 0 and step > start_step) or step == config.num_train_steps - 1:
-                _checkpoints.save_state(checkpoint_manager, train_state, data_loader, step)
+                _checkpoints.save_state(checkpoint_manager, train_state, data_loader, step, config)
 
                 latest_step_dir = config.checkpoint_dir / str(step)
                 run_on_aws = os.environ.get("AWS_BATCH_JOB_ID")

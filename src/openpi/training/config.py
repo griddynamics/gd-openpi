@@ -199,6 +199,11 @@ class DataConfigFactory(abc.ABC):
             logging.info(f"Norm stats not found in {data_assets_dir}, skipping.")
         return None
 
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        """Camera configuration for this robot. Override in subclasses."""
+        return {}
+
 
 @dataclasses.dataclass(frozen=True)
 class FakeDataConfig(DataConfigFactory):
@@ -231,6 +236,14 @@ class MyArmDataConfig(DataConfigFactory):
     This config is used to configure transforms that are applied at various parts of the data pipeline
     for MyArm robot dataset.
     """
+
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        return {
+            "base_0_rgb": {"observation_key": "observation/image", "required": True},
+            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image", "required": True},
+            "right_wrist_0_rgb": {"observation_key": None, "required": False},
+        }
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -287,6 +300,15 @@ class LeRobotAlohaDataConfig(DataConfigFactory):
     # use standard Aloha data should set this to true.
     adapt_to_pi: bool = True
 
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        return {
+            "base_0_rgb": {"observation_key": "observation/images/cam_high", "required": True},
+            "base_1_rgb": {"observation_key": "observation/images/cam_low", "required": True},
+            "left_wrist_0_rgb": {"observation_key": "observation/images/cam_left_wrist", "required": True},
+            "right_wrist_0_rgb": {"observation_key": "observation/images/cam_right_wrist", "required": True},
+        }
+
     # Repack transforms.
     repack_transforms: tyro.conf.Suppress[_transforms.Group] = dataclasses.field(
         default=_transforms.Group(
@@ -337,6 +359,14 @@ class LeRobotLiberoDataConfig(DataConfigFactory):
     """
 
     extra_delta_transform: bool = False
+
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        return {
+            "base_0_rgb": {"observation_key": "observation/image", "required": True},
+            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image", "required": True},
+            "right_wrist_0_rgb": {"observation_key": None, "required": False},
+        }
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -420,6 +450,14 @@ class RLDSDroidDataConfig(DataConfigFactory):
     # Path to the filter dictionary file.
     filter_dict_path: str | None = "gs://openpi-assets/droid/droid_sample_ranges_v1_0_1.json"
 
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        return {
+            "base_0_rgb": {"observation_key": "observation/exterior_image_1_left", "required": True},
+            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image_left", "required": True},
+            "right_wrist_0_rgb": {"observation_key": None, "required": False},
+        }
+
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
         repack_transform = _transforms.Group(
@@ -471,6 +509,15 @@ class LeRobotDROIDDataConfig(DataConfigFactory):
     Example data config for custom DROID dataset in LeRobot format.
     To convert your custom DROID dataset (<10s of hours) to LeRobot format, see examples/droid/convert_droid_data_to_lerobot.py
     """
+
+    @property
+    def camera_config(self) -> dict[str, dict[str, Any]]:
+        return {
+            "base_0_rgb": {"observation_key": "observation/exterior_image_1_left", "required": True},
+            "base_1_rgb": {"observation_key": "observation/exterior_image_2_left", "required": True},
+            "left_wrist_0_rgb": {"observation_key": "observation/wrist_image_left", "required": True},
+            "right_wrist_0_rgb": {"observation_key": None, "required": False},
+        }
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
