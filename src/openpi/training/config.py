@@ -1081,6 +1081,21 @@ _CONFIGS = [
     # Robotic Platform configs.
     #
     TrainConfig(
+        name="pi0_myarm_finetune",
+        model=pi0_config.Pi0Config(),
+        data=MyArmDataConfig(
+            repo_id="datasets/myarm",
+            base_config=DataConfig(
+                prompt_from_task=True,
+            ),
+        ),
+        num_train_steps=10_000,
+        batch_size=64,
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        wandb_enabled=False,
+        mlflow_enabled=True,
+    ),
+    TrainConfig(
         name="pi0_myarm_low_mem_finetune",
         model=pi0_config.Pi0Config(paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=MyArmDataConfig(
