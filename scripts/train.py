@@ -41,7 +41,7 @@ def upload_checkpoint_to_s3(local_dir: str, s3_uri: str):
 
     Args:
         local_dir: str, Local path, e.g. "/tmp/checkpoints/pi0_pikki/exp_1"
-        s3_uri: str, S3 URI, e.g. "s3://robotic-platform-vla/checkpoints/pi0_pikki/exp_1"
+        s3_uri: str, S3 URI, e.g. "s3://{bucket}/{prefix}/models/pi0_pikki/exp_1"
     """
     if not s3_uri.startswith("s3://"):
         raise ValueError("Expected S3 URI to start with 's3://'")
@@ -399,14 +399,16 @@ def main(config: _config.TrainConfig):
                 infos = []
             batch = next(data_iter)
             if (step % config.save_interval == 0 and step > start_step) or step == config.num_train_steps - 1:
-                _checkpoints.save_state(checkpoint_manager, train_state, data_loader, step)
+                _checkpoints.save_state(checkpoint_manager, train_state, data_loader, step, config)
 
                 latest_step_dir = config.checkpoint_dir / str(step)
                 run_on_aws = os.environ.get("AWS_BATCH_JOB_ID")
                 if run_on_aws:
                     checkpoint_manager.wait_until_finished()
                     model_id = os.environ.get("MODEL_ID", "model_id")
-                    s3_path = f"s3://robotic-platform-vla/dev/models/{model_id}/{config.name}/{config.exp_name}/{step}"
+                    s3_bucket = os.environ.get("S3_BUCKET", "robotic-platform-storage")
+                    s3_prefix = os.environ.get("S3_PREFIX", "dev")
+                    s3_path = f"s3://{s3_bucket}/{s3_prefix}/models/{model_id}/{config.name}/{config.exp_name}/{step}"
                     upload_checkpoint_to_s3(
                         local_dir=str(latest_step_dir),
                         s3_uri=s3_path,

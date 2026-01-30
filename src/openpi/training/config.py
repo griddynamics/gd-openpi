@@ -199,6 +199,16 @@ class DataConfigFactory(abc.ABC):
             logging.info(f"Norm stats not found in {data_assets_dir}, skipping.")
         return None
 
+    @property
+    def robot_type(self) -> str:
+        """Robot type identifier. Override in subclasses."""
+        return "unknown"
+
+    @property
+    def robot_action_dim(self) -> int:
+        """Actual robot action dimension. Override in subclasses."""
+        return 0
+
 
 @dataclasses.dataclass(frozen=True)
 class FakeDataConfig(DataConfigFactory):
@@ -231,6 +241,14 @@ class MyArmDataConfig(DataConfigFactory):
     This config is used to configure transforms that are applied at various parts of the data pipeline
     for MyArm robot dataset.
     """
+
+    @property
+    def robot_type(self) -> str:
+        return "my_arm"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 7
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -287,6 +305,14 @@ class LeRobotAlohaDataConfig(DataConfigFactory):
     # use standard Aloha data should set this to true.
     adapt_to_pi: bool = True
 
+    @property
+    def robot_type(self) -> str:
+        return "aloha"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 14
+
     # Repack transforms.
     repack_transforms: tyro.conf.Suppress[_transforms.Group] = dataclasses.field(
         default=_transforms.Group(
@@ -337,6 +363,14 @@ class LeRobotLiberoDataConfig(DataConfigFactory):
     """
 
     extra_delta_transform: bool = False
+
+    @property
+    def robot_type(self) -> str:
+        return "libero"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 7
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
@@ -420,6 +454,14 @@ class RLDSDroidDataConfig(DataConfigFactory):
     # Path to the filter dictionary file.
     filter_dict_path: str | None = "gs://openpi-assets/droid/droid_sample_ranges_v1_0_1.json"
 
+    @property
+    def robot_type(self) -> str:
+        return "droid"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 8
+
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
         repack_transform = _transforms.Group(
@@ -471,6 +513,14 @@ class LeRobotDROIDDataConfig(DataConfigFactory):
     Example data config for custom DROID dataset in LeRobot format.
     To convert your custom DROID dataset (<10s of hours) to LeRobot format, see examples/droid/convert_droid_data_to_lerobot.py
     """
+
+    @property
+    def robot_type(self) -> str:
+        return "droid"
+
+    @property
+    def robot_action_dim(self) -> int:
+        return 8
 
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:

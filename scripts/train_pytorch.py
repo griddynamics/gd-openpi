@@ -25,6 +25,7 @@ Multi-Node Training:
 
 import dataclasses
 import gc
+import json
 import logging
 import os
 import platform
@@ -181,6 +182,24 @@ def save_checkpoint(model, optimizer, global_step, config, is_main, data_config)
         norm_stats = data_config.norm_stats
         if norm_stats is not None and data_config.asset_id is not None:
             _normalize.save(tmp_ckpt_dir / "assets" / data_config.asset_id, norm_stats)
+
+        # Save policy metadata for inference
+        policy_metadata = {
+            "config_name": config.name,
+            "robot_type": config.data.robot_type,
+            "robot": {
+                "action_dim": config.data.robot_action_dim,
+            },
+            "model": {
+                "action_dim": config.model.action_dim,
+                "action_horizon": config.model.action_horizon,
+            },
+            "training": {
+                "steps": global_step,
+                "dataset": config.data.repo_id,
+            },
+        }
+        (tmp_ckpt_dir / "policy_metadata.json").write_text(json.dumps(policy_metadata, indent=2))
 
         # Atomically move temp directory to final location
         if final_ckpt_dir.exists():
